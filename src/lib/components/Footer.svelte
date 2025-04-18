@@ -5,7 +5,7 @@
 </script>
 
 <footer
-	class="fixed inset-x-0 bottom-0 flex h-15 items-center justify-between gap-4 bg-gradient-to-r from-zinc-900/50 via-zinc-900 to-indigo-700 p-6"
+	class="fixed inset-x-0 bottom-0 flex h-15 items-center justify-between gap-4 bg-gradient-to-r from-zinc-900/50 via-zinc-900/80 to-indigo-700/80 p-6"
 >
 	<p class="text-zinc-500">
 		&copy; {new SvelteDate().getFullYear()} -

@@ -22,5 +22,13 @@ export const commands = [
 		concat: false,
 		or: true,
 		keys: ['enter']
+	},
+	{
+		id: 4,
+		name: 'Fullscreen',
+		description: 'Ativar/Desativar o modo tela cheia',
+		concat: false,
+		or: false,
+		keys: ['f11']
 	}
 ];
