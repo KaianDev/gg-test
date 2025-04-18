@@ -9,7 +9,7 @@
 <div
 	role="scape"
 	aria-roledescription="button"
-	class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/80"
+	class="fixed inset-0 z-50 mt-2 flex items-start justify-center bg-zinc-900/20"
 >
 	<div
 		transition:fly={{ y: -200, duration: 300 }}

@@ -13,6 +13,7 @@
 	let grid = 3;
 
 	const listGames = $state(games);
+	const gameItems: HTMLAnchorElement[] = $state([]);
 
 	const filteredGames = $derived(
 		listGames.filter((game) => game.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
@@ -47,8 +48,17 @@
 			selectedGame = Math.min(filteredGames.length - 1, selectedGame + 1);
 		} else if (e.key === 'ArrowDown') {
 			selectedGame = Math.min(filteredGames.length - 1, selectedGame + grid);
+			console.log(isElementInViewport(gameItems[selectedGame]));
+			const isVisible = isElementInViewport(gameItems[selectedGame]);
+			if (!isVisible) {
+				gameItems[selectedGame].scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
 		} else if (e.key === 'ArrowUp') {
 			selectedGame = Math.max(0, selectedGame - grid);
+			const isVisible = isElementInViewport(gameItems[selectedGame]);
+			if (!isVisible) {
+				gameItems[selectedGame].scrollIntoView({ behavior: 'smooth', block: 'end' });
+			}
 		} else if (e.key.toLowerCase() === 'k' && e.ctrlKey) {
 			e.preventDefault();
 			open = !open;
@@ -60,6 +70,20 @@
 			open = false;
 		}
 	};
+
+	function isElementInViewport(el: HTMLElement) {
+		
+		var rect = el.getBoundingClientRect();
+
+		return (
+			rect.top >= 0 &&
+			rect.left >= 0 &&
+			rect.bottom <=
+				(window.innerHeight || document.documentElement.clientHeight) /* or $(window).height() */ &&
+			rect.right <=
+				(window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
+		);
+	}
 
 	onMount(() => {
 		window.addEventListener('keydown', handleKeyDown);
@@ -89,13 +113,15 @@
 		<Logo />
 
 		<div class="flex items-center gap-4">
-			<div>
-				<input
-					class="border-input ring-offset-background flex h-10 w-full rounded-md border bg-zinc-900 px-3 py-2 text-base placeholder:text-zinc-400 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-					placeholder="Pesquisar"
-					bind:value={searchQuery}
-				/>
-			</div>
+			{#if !open}
+				<div>
+					<input
+						class="border-input ring-offset-background flex h-10 w-full rounded-md border bg-zinc-900 px-3 py-2 text-base placeholder:text-zinc-400 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+						placeholder="Pesquisar"
+						bind:value={searchQuery}
+					/>
+				</div>
+			{/if}
 		</div>
 	</header>
 
@@ -107,6 +133,8 @@
 					{game}
 					updateMetrics={() => updateGameMetrics(index)}
 					isSelected={selectedGame === index}
+					onmouseenter={() => (selectedGame = index)}
+					onbind={(el) => (gameItems[index] = el)}
 				/>
 			{/each}
 		</div>

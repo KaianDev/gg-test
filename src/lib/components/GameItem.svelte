@@ -5,17 +5,28 @@
 		game: Game;
 		isSelected: boolean;
 		updateMetrics: () => void;
+		onmouseenter: () => void;
+		onbind: (el: HTMLAnchorElement) => void;
 	}
 
-	let { game, isSelected, updateMetrics }: GameItemProps = $props();
+
+	let { game, isSelected, updateMetrics, onmouseenter, onbind }: GameItemProps = $props();
+	let element: HTMLAnchorElement = $state(null!);
+	$effect(() => {
+		if (element) {
+			onbind(element);
+		}
+	});
 </script>
 
 <a
 	href={game.link}
 	target="_blank"
 	tabindex="0"
-	class="border-4 border-transparent {isSelected ? 'rounded-md  border-violet-700' : ''}"
+	class="border-4 border-transparent cursor-pointer {isSelected ? 'rounded-md  border-violet-700' : ''}"
 	onclick={updateMetrics}
+	onmouseenter={onmouseenter}
+	bind:this={element}
 >
 	<div class="relative overflow-hidden rounded-xs">
 		<img src={game.cover} alt={game.title} />
