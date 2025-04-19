@@ -45,8 +45,34 @@ export const games = [
 		link: 'https://store.steampowered.com/app/2050650/Resident_Evil_4/'
 	},
 	{
-		title: 'Alan Wake 2',
-		cover: 'https://cdn.akamai.steamstatic.com/steam/apps/2078100/header.jpg',
-		link: 'https://store.steampowered.com/app/2078100/Alan_Wake_2/'
+		title: 'Alan Wake',
+		cover:
+			'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/108710/header.jpg?t=1726554283',
+		link: 'https://store.steampowered.com/app/108710/Alan_Wake/'
+	},
+	{
+		title: 'Death Stranding',
+		cover: 'https://cdn.akamai.steamstatic.com/steam/apps/1190460/header.jpg',
+		link: 'https://store.steampowered.com/app/1190460/DEATH_STRANDING/'
+	},
+	{
+		title: 'Sekiro: Shadows Die Twice',
+		cover: 'https://cdn.akamai.steamstatic.com/steam/apps/814380/header.jpg',
+		link: 'https://store.steampowered.com/app/814380/Sekiro_Shadows_Die_Twice/'
+	},
+	{
+		title: 'Ghost of Tsushima',
+		cover: 'https://cdn.akamai.steamstatic.com/steam/apps/2215430/header.jpg',
+		link: 'https://store.steampowered.com/app/2215430/Ghost_of_Tsushima/'
+	},
+	{
+		title: 'Assassin’s Creed Valhalla',
+		cover: 'https://cdn.akamai.steamstatic.com/steam/apps/2208920/header.jpg',
+		link: 'https://store.steampowered.com/app/2208920/Assassins_Creed_Valhalla/'
+	},
+	{
+		title: 'Lies of P',
+		cover: 'https://cdn.akamai.steamstatic.com/steam/apps/1627720/header.jpg',
+		link: 'https://store.steampowered.com/app/1627720/Lies_of_P/'
 	}
 ];

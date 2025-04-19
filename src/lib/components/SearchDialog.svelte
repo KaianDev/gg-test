@@ -9,11 +9,11 @@
 <div
 	role="scape"
 	aria-roledescription="button"
-	class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/80"
+	class="fixed inset-0 z-50 mt-2 flex items-start justify-center bg-zinc-900/20"
 >
 	<div
 		transition:fly={{ y: -200, duration: 300 }}
-		class="w-full max-w-md rounded-md border border-transparent bg-zinc-900 p-4 shadow"
+		class="mt-5 w-full max-w-md rounded-md border border-transparent bg-zinc-900 p-4 shadow"
 	>
 		<input
 			autofocus

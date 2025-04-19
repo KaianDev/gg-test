@@ -13,6 +13,7 @@
 	let grid = 3;
 
 	const listGames = $state(games);
+	const gameItemElements: HTMLAnchorElement[] = $state([]);
 
 	const filteredGames = $derived(
 		listGames.filter((game) => game.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
@@ -39,6 +40,14 @@
 		localStorage.setItem('@gg/metrics', JSON.stringify($metrics));
 	};
 
+	const isElementInViewport = (element: HTMLElement): boolean => {
+		const { top, bottom, left, right } = element.getBoundingClientRect();
+		const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+		const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
+		return top >= 0 && left >= 0 && bottom <= viewportHeight && right <= viewportWidth;
+	};
+
 	const handleKeyDown = (e: KeyboardEvent) => {
 		const specialKey = e.altKey || e.ctrlKey || e.metaKey;
 		if (e.key === 'ArrowLeft' && !specialKey) {
@@ -47,8 +56,22 @@
 			selectedGame = Math.min(filteredGames.length - 1, selectedGame + 1);
 		} else if (e.key === 'ArrowDown') {
 			selectedGame = Math.min(filteredGames.length - 1, selectedGame + grid);
+			const elementIsInViewport = isElementInViewport(gameItemElements[selectedGame]);
+			if (!elementIsInViewport) {
+				gameItemElements[selectedGame].scrollIntoView({
+					behavior: 'smooth',
+					block: 'start'
+				});
+			}
 		} else if (e.key === 'ArrowUp') {
 			selectedGame = Math.max(0, selectedGame - grid);
+			const elementIsInViewport = isElementInViewport(gameItemElements[selectedGame]);
+			if (!elementIsInViewport) {
+				gameItemElements[selectedGame].scrollIntoView({
+					behavior: 'smooth',
+					block: 'end'
+				});
+			}
 		} else if (e.key.toLowerCase() === 'k' && e.ctrlKey) {
 			e.preventDefault();
 			open = !open;
@@ -107,6 +130,10 @@
 					{game}
 					updateMetrics={() => updateGameMetrics(index)}
 					isSelected={selectedGame === index}
+					onmouseenter={() => (selectedGame = index)}
+					onBind={(el: HTMLAnchorElement) => {
+						gameItemElements[index] = el;
+					}}
 				/>
 			{/each}
 		</div>

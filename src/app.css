@@ -1,3 +1,18 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+::-webkit-scrollbar {
+	width: 0;
+}
+body.cursor-none {
+	* {
+		cursor: none;
+	}
+}
+
+body.cursor-default {
+	* {
+		cursor: auto;
+	}
+}
