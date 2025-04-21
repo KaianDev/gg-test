@@ -4,6 +4,7 @@
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
 	import { games } from '$lib/data/games';
 	import { metrics } from '$lib/data/metrics';
+	import { Direction } from '$lib/types/direction';
 
 	import { onMount } from 'svelte';
 
@@ -14,6 +15,14 @@
 
 	const listGames = $state(games);
 	const gameItemElements: HTMLAnchorElement[] = $state([]);
+	let previousButtonStates = $state({
+		axesY: 0,
+		axesX: 0,
+		buttonA: false,
+		buttonB: false
+	});
+
+	const DEADZONE = 0.5;
 
 	const filteredGames = $derived(
 		listGames.filter((game) => game.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
@@ -48,40 +57,124 @@
 		return top >= 0 && left >= 0 && bottom <= viewportHeight && right <= viewportWidth;
 	};
 
+	const smoothScroll = (direction: 'next' | 'prev') => {
+		const elementIsInViewport = isElementInViewport(gameItemElements[selectedGame]);
+		if (elementIsInViewport) return;
+
+		if (direction === 'prev') {
+			gameItemElements[selectedGame].scrollIntoView({
+				behavior: 'smooth',
+				block: 'end'
+			});
+		} else {
+			gameItemElements[selectedGame].scrollIntoView({
+				behavior: 'smooth',
+				block: 'start'
+			});
+		}
+	};
+
+	const handleMove = (direction: Direction) => {
+		switch (direction) {
+			case Direction.LEFT:
+				selectedGame = Math.max(0, selectedGame - 1);
+				smoothScroll('prev');
+				break;
+			case Direction.RIGHT: {
+				selectedGame = Math.min(filteredGames.length - 1, selectedGame + 1);
+				smoothScroll('next');
+				break;
+			}
+			case Direction.DOWN: {
+				selectedGame = Math.min(filteredGames.length - 1, selectedGame + grid);
+				smoothScroll('next');
+				break;
+			}
+			case Direction.UP: {
+				selectedGame = Math.max(0, selectedGame - grid);
+				smoothScroll('prev');
+				break;
+			}
+			default:
+				return;
+		}
+	};
+
+	const openGamePage = () => {
+		updateGameMetrics(selectedGame);
+		window.open(filteredGames[selectedGame].link, '_blank');
+	};
+
 	const handleKeyDown = (e: KeyboardEvent) => {
 		const specialKey = e.altKey || e.ctrlKey || e.metaKey;
 		if (e.key === 'ArrowLeft' && !specialKey) {
-			selectedGame = Math.max(0, selectedGame - 1);
+			handleMove(Direction.LEFT);
 		} else if (e.key === 'ArrowRight' && !specialKey) {
-			selectedGame = Math.min(filteredGames.length - 1, selectedGame + 1);
+			handleMove(Direction.RIGHT);
 		} else if (e.key === 'ArrowDown') {
-			selectedGame = Math.min(filteredGames.length - 1, selectedGame + grid);
-			const elementIsInViewport = isElementInViewport(gameItemElements[selectedGame]);
-			if (!elementIsInViewport) {
-				gameItemElements[selectedGame].scrollIntoView({
-					behavior: 'smooth',
-					block: 'start'
-				});
-			}
+			handleMove(Direction.DOWN);
 		} else if (e.key === 'ArrowUp') {
-			selectedGame = Math.max(0, selectedGame - grid);
-			const elementIsInViewport = isElementInViewport(gameItemElements[selectedGame]);
-			if (!elementIsInViewport) {
-				gameItemElements[selectedGame].scrollIntoView({
-					behavior: 'smooth',
-					block: 'end'
-				});
-			}
+			handleMove(Direction.UP);
 		} else if (e.key.toLowerCase() === 'k' && e.ctrlKey) {
 			e.preventDefault();
 			open = !open;
 		} else if (e.key === 'Enter') {
 			e.preventDefault();
-			updateGameMetrics(selectedGame);
-			window.open(filteredGames[selectedGame].link, '_blank');
+			openGamePage();
 		} else if (e.key === 'Escape') {
 			open = false;
 		}
+	};
+
+	const hideMouseCursor = () => {
+		document.body.classList.add('cursor-none');
+		document.body.classList.remove('cursor-auto');
+	};
+
+	const updateGamepad = () => {
+		let gp = navigator.getGamepads()[0];
+		if (gp) {
+			const axesX = gp.axes[0] ?? 0;
+			const axesY = gp.axes[1] ?? 0;
+
+			const buttonA = gp.buttons[1];
+			const buttonB = gp.buttons[2];
+
+			if (axesX > DEADZONE && previousButtonStates.axesX <= DEADZONE) {
+				handleMove(Direction.RIGHT);
+				hideMouseCursor();
+			} else if (axesX < -DEADZONE && previousButtonStates.axesX >= -DEADZONE) {
+				handleMove(Direction.LEFT);
+				hideMouseCursor();
+			}
+
+			if (axesY > DEADZONE && previousButtonStates.axesY <= DEADZONE) {
+				handleMove(Direction.DOWN);
+				hideMouseCursor();
+			} else if (axesY < -DEADZONE && previousButtonStates.axesY >= -DEADZONE) {
+				handleMove(Direction.UP);
+				hideMouseCursor();
+			}
+
+			if (buttonA.pressed && !previousButtonStates.buttonA) {
+				openGamePage();
+				hideMouseCursor();
+			}
+
+			if (buttonB.pressed && !previousButtonStates.buttonB) {
+				openGamePage();
+				hideMouseCursor();
+			}
+
+			previousButtonStates = {
+				axesX,
+				axesY,
+				buttonA: buttonA.pressed,
+				buttonB: buttonB.pressed
+			};
+		}
+
+		requestAnimationFrame(updateGamepad);
 	};
 
 	onMount(() => {
@@ -96,6 +189,17 @@
 		if (metricsFromStorage) {
 			metrics.set(JSON.parse(metricsFromStorage));
 		}
+	});
+
+	onMount(() => {
+		window.addEventListener('gamepadconnected', (e) => {
+			console.log(e.gamepad);
+			updateGamepad();
+		});
+
+		return () => {
+			window.removeEventListener('gamepadconnected', updateGamepad);
+		};
 	});
 
 	$inspect($metrics);
