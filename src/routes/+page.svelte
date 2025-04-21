@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Footer from '$lib/components/Footer.svelte';
 	import GameItem from '$lib/components/GameItem.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import SearchDialog from '$lib/components/SearchDialog.svelte';
@@ -21,12 +22,18 @@
 		buttonA: false,
 		buttonB: false
 	});
+	let applicationMode = $state<'keyboard' | 'gamepad'>('keyboard');
 
 	const DEADZONE = 0.5;
 
 	const filteredGames = $derived(
 		listGames.filter((game) => game.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
 	);
+
+	const updateApplicationMode = (mode: 'keyboard' | 'gamepad') => {
+		if (applicationMode === mode) return;
+		applicationMode = mode;
+	};
 
 	const updateGameMetrics = (index: number) => {
 		metrics.update((m) => {
@@ -107,20 +114,27 @@
 
 	const handleKeyDown = (e: KeyboardEvent) => {
 		const specialKey = e.altKey || e.ctrlKey || e.metaKey;
+
 		if (e.key === 'ArrowLeft' && !specialKey) {
 			handleMove(Direction.LEFT);
+			updateApplicationMode('keyboard');
 		} else if (e.key === 'ArrowRight' && !specialKey) {
 			handleMove(Direction.RIGHT);
+			updateApplicationMode('keyboard');
 		} else if (e.key === 'ArrowDown') {
 			handleMove(Direction.DOWN);
+			updateApplicationMode('keyboard');
 		} else if (e.key === 'ArrowUp') {
 			handleMove(Direction.UP);
+			updateApplicationMode('keyboard');
 		} else if (e.key.toLowerCase() === 'k' && e.ctrlKey) {
 			e.preventDefault();
 			open = !open;
+			updateApplicationMode('keyboard');
 		} else if (e.key === 'Enter') {
 			e.preventDefault();
 			openGamePage();
+			updateApplicationMode('keyboard');
 		} else if (e.key === 'Escape') {
 			open = false;
 		}
@@ -143,27 +157,33 @@
 			if (axesX > DEADZONE && previousButtonStates.axesX <= DEADZONE) {
 				handleMove(Direction.RIGHT);
 				hideMouseCursor();
+				updateApplicationMode('gamepad');
 			} else if (axesX < -DEADZONE && previousButtonStates.axesX >= -DEADZONE) {
 				handleMove(Direction.LEFT);
 				hideMouseCursor();
+				updateApplicationMode('gamepad');
 			}
 
 			if (axesY > DEADZONE && previousButtonStates.axesY <= DEADZONE) {
 				handleMove(Direction.DOWN);
 				hideMouseCursor();
+				updateApplicationMode('gamepad');
 			} else if (axesY < -DEADZONE && previousButtonStates.axesY >= -DEADZONE) {
 				handleMove(Direction.UP);
 				hideMouseCursor();
+				updateApplicationMode('gamepad');
 			}
 
 			if (buttonA.pressed && !previousButtonStates.buttonA) {
 				openGamePage();
 				hideMouseCursor();
+				updateApplicationMode('gamepad');
 			}
 
 			if (buttonB.pressed && !previousButtonStates.buttonB) {
 				openGamePage();
 				hideMouseCursor();
+				updateApplicationMode('gamepad');
 			}
 
 			previousButtonStates = {
@@ -247,3 +267,5 @@
 {#if open}
 	<SearchDialog bind:searchQuery {open} />
 {/if}
+
+<Footer mode={applicationMode} />

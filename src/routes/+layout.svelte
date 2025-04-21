@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Footer from '$lib/components/Footer.svelte';
 	import { onMount } from 'svelte';
 	import '../app.css';
 
@@ -30,4 +29,3 @@
 </script>
 
 {@render children()}
-<Footer />

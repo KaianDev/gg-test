@@ -32,3 +32,14 @@ export const commands = [
 		keys: ['f11']
 	}
 ];
+
+export const gamepadCommands = [
+	{
+		id: 1,
+		name: 'Selecionar',
+		description: 'Selecionar um item',
+		concat: false,
+		or: true,
+		iconsHref: ['/button-1.png', '/button-2.png']
+	}
+];

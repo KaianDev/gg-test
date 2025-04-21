@@ -1,5 +1,6 @@
-<script>
-	import { commands } from '$lib/data/command';
+<script lang="ts">
+	import { commands, gamepadCommands } from '$lib/data/command';
+	let { mode }: { mode: 'keyboard' | 'gamepad' } = $props();
 
 	import { SvelteDate } from 'svelte/reactivity';
 </script>
@@ -18,25 +19,41 @@
 		</a>
 	</p>
 	<div class="flex items-center gap-2">
-		{#each commands as item, index (item.id)}
-			<div class="flex items-center gap-1">
-				<p title={item.description} class="text-zinc-50">
-					{item.name}
-				</p>
-				{#each item.keys as key, kIndex}
-					<kbd
-						class="min flex h-8 min-w-8 items-center justify-center rounded-md border-r border-b border-zinc-400 bg-zinc-100 p-1 text-sm leading-0 select-none"
-						>{@html key}
-					</kbd>
-					<span class="text-zinc-50"
-						>{kIndex !== item.keys.length - 1 && item.concat ? '+' : ''}
-						{kIndex !== item.keys.length - 1 && item.or ? 'ou' : ''}</span
-					>
+		{#if mode === 'keyboard'}
+			{#each commands as item, index (item.id)}
+				<div class="flex items-center gap-1">
+					<p title={item.description} class="text-zinc-50">
+						{item.name}
+					</p>
+					{#each item.keys as key, kIndex}
+						<kbd
+							class="min flex h-8 min-w-8 items-center justify-center rounded-md border-r border-b border-zinc-400 bg-zinc-100 p-1 text-sm leading-0 select-none"
+							>{@html key}
+						</kbd>
+						<span class="text-zinc-50"
+							>{kIndex !== item.keys.length - 1 && item.concat ? '+' : ''}
+							{kIndex !== item.keys.length - 1 && item.or ? 'ou' : ''}</span
+						>
+					{/each}
+				</div>
+				{#if index !== commands.length - 1}
+					<hr class="h-10 w-0.5 bg-zinc-50/50" />
+				{/if}
+			{/each}
+		{/if}
+
+		{#if mode === 'gamepad'}
+			{#each gamepadCommands as item, index (item.id)}
+				<div class="flex items-center gap-1">
+					<p class="text-zinc-50" title={item.description}>{item.name}</p>
+				</div>
+				{#each item.iconsHref as icon, icIndex}
+					<img src={icon} alt="" class="size-6" />
+					{#if item.or && icIndex !== item.iconsHref.length - 1}
+						<span class="text-zinc-50">ou</span>
+					{/if}
 				{/each}
-			</div>
-			{#if index !== commands.length - 1}
-				<hr class="h-10 w-0.5 bg-zinc-50/50" />
-			{/if}
-		{/each}
+			{/each}
+		{/if}
 	</div>
 </footer>
